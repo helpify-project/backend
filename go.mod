@@ -3,7 +3,11 @@ module github.com/helpify-project/backend
 go 1.19
 
 require (
+	github.com/davecgh/go-spew v1.1.1
+	github.com/deckarep/golang-set v1.8.0
+	github.com/ethereum/go-ethereum v1.10.26
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/websocket v1.4.2
 	github.com/jackc/pgx/v5 v5.0.4
 	github.com/pressly/goose/v3 v3.7.0
 	github.com/uptrace/bun v1.1.8
@@ -11,6 +15,7 @@ require (
 	github.com/uptrace/bun/extra/bundebug v1.1.8
 	github.com/urfave/cli/v2 v2.23.2
 	go.uber.org/zap v1.23.0
+	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce
 )
 
 require (
@@ -18,7 +23,9 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/denisenkom/go-mssqldb v0.12.2 // indirect
 	github.com/fatih/color v1.13.0 // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -38,11 +45,15 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
+	github.com/tklauser/go-sysconf v0.3.10 // indirect
+	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
+	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.opentelemetry.io/otel v1.9.0 // indirect
 	go.opentelemetry.io/otel/trace v1.9.0 // indirect
