@@ -19,8 +19,8 @@ import (
 	"github.com/uptrace/bun/extra/bundebug"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapio"
 	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zapio"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 				},
 			},
 			&cli.StringFlag{
-				Name: "postgres-uri",
+				Name:     "postgres-uri",
 				Required: true,
 				EnvVars: []string{
 					"HELPIFY_API_POSTGRES_URI",
@@ -132,7 +132,9 @@ func entrypoint(cctx *cli.Context) (err error) {
 		w.WriteHeader(404)
 	})
 
-	(&controllers.GoDebugController{}).Register(router)
+	if cctx.Bool("debug") {
+		(&controllers.GoDebugController{}).Register(router)
+	}
 	(&controllers.HealthController{}).Register(router)
 
 	serverDone := make(chan interface{})
