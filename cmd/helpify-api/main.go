@@ -81,6 +81,10 @@ func entrypoint(cctx *cli.Context) (err error) {
 		WriteTimeout: 15 * time.Second,
 	}
 
+	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+	})
+
 	(&controllers.GoDebugController{}).Register(router)
 	(&controllers.HealthController{}).Register(router)
 
