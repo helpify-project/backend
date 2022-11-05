@@ -60,9 +60,14 @@ func (s *Server) WebsocketHandler(allowedOrigins []string) http.Handler {
 			log.Debug("WebSocket upgrade failed", "err", err)
 			return
 		}
-		codec := newWebsocketCodec(conn, r.Host, r.Header)
-		s.ServeCodec(codec, 0)
+
+		s.HandleWebsocketConnection(r, conn)
 	})
+}
+
+func (s *Server) HandleWebsocketConnection(r *http.Request, conn *websocket.Conn) {
+	codec := newWebsocketCodec(conn, r.Host, r.Header)
+	s.ServeCodec(codec, 0)
 }
 
 // wsHandshakeValidator returns a handler that verifies the origin during the
