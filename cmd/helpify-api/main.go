@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/helpify-project/backend/internal/controllers"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -79,6 +80,8 @@ func entrypoint(cctx *cli.Context) (err error) {
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 	}
+
+	(&controllers.HealthController{}).Register(router)
 
 	serverDone := make(chan interface{})
 	go func() {
