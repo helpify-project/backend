@@ -81,6 +81,7 @@ func entrypoint(cctx *cli.Context) (err error) {
 		WriteTimeout: 15 * time.Second,
 	}
 
+	(&controllers.GoDebugController{}).Register(router)
 	(&controllers.HealthController{}).Register(router)
 
 	serverDone := make(chan interface{})
