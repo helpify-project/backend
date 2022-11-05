@@ -4,8 +4,9 @@ import (
 	"net/http/pprof"
 
 	"github.com/gorilla/mux"
-	"github.com/helpify-project/backend/internal/router"
 	"go.uber.org/zap"
+
+	"github.com/helpify-project/backend/internal/router"
 )
 
 var _ router.Controller = (*GoDebugController)(nil)
