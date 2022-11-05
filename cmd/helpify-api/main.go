@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,8 +12,14 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/helpify-project/backend/internal/controllers"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/extra/bundebug"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapio"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -25,10 +33,23 @@ func main() {
 			&cli.BoolFlag{
 				Name:  "debug",
 				Value: false,
+				EnvVars: []string{
+					"HELPIFY_API_DEBUG",
+				},
 			},
 			&cli.StringFlag{
 				Name:  "http-listen-address",
 				Value: "127.0.0.1:3009",
+				EnvVars: []string{
+					"HELPIFY_API_HTTP_LISTEN_ADDRESS",
+				},
+			},
+			&cli.StringFlag{
+				Name: "postgres-uri",
+				Required: true,
+				EnvVars: []string{
+					"HELPIFY_API_POSTGRES_URI",
+				},
 			},
 		},
 		Before: func(cctx *cli.Context) (err error) {
@@ -71,7 +92,33 @@ func setupLogging(debugMode bool) error {
 }
 
 func entrypoint(cctx *cli.Context) (err error) {
+	ctx := cctx.Context
 	defer func() { _ = zap.L().Sync() }()
+
+	var dbConfig *pgx.ConnConfig
+	if dbConfig, err = pgx.ParseConfig(cctx.String("postgres-uri")); err != nil {
+		err = fmt.Errorf("unable to parse postgres uri: %w", err)
+		return
+	}
+
+	sqldb := stdlib.OpenDB(*dbConfig)
+	db := bun.NewDB(sqldb, pgdialect.New())
+	defer func() { _ = db.Close() }()
+
+	if cctx.Bool("debug") {
+		var dbLogger io.WriteCloser = &zapio.Writer{Log: zap.L().With(zap.String("section", "bun")), Level: zapcore.DebugLevel}
+		defer func() { _ = dbLogger.Close() }()
+
+		db.AddQueryHook(bundebug.NewQueryHook(
+			bundebug.WithVerbose(true),
+			bundebug.WithWriter(dbLogger),
+		))
+	}
+
+	if _, err = db.ExecContext(ctx, "SELECT 1"); err != nil {
+		err = fmt.Errorf("failed to test database connection: %w", err)
+		return
+	}
 
 	router := mux.NewRouter()
 	srv := &http.Server{
