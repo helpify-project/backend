@@ -3,8 +3,10 @@ package controllers
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"aidanwoods.dev/go-paseto"
@@ -24,6 +26,11 @@ var _ router.Controller = (*ChatController)(nil)
 
 const (
 	chatSessionCookieName = "chat_session"
+	chatSupportCookieName = "chat_support"
+)
+
+var (
+	wsPool = new(sync.Pool)
 )
 
 type ChatController struct {
@@ -50,7 +57,7 @@ func (c *ChatController) handleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	zap.L().Debug("new client", zap.String("sid", sid))
+	r = c.prepareRequest(r, sid)
 	c.rpc.HandleWebsocketConnection(r, conn)
 }
 
@@ -66,9 +73,11 @@ func (c *ChatController) Register(router *mux.Router) {
 	})
 
 	c.upgrader = &websocket.Upgrader{
-		HandshakeTimeout: 10 * time.Second,
-		ReadBufferSize:   1024,
-		WriteBufferSize:  1024,
+		HandshakeTimeout:  10 * time.Second,
+		ReadBufferSize:    4096,
+		WriteBufferSize:   4096,
+		WriteBufferPool:   wsPool,
+		EnableCompression: true,
 		CheckOrigin: func(r *http.Request) bool {
 			// TODO: need allowed domains from the configuration
 			return true
@@ -99,14 +108,26 @@ func (c *ChatController) Register(router *mux.Router) {
 			}
 		}
 
-		r = r.WithContext(cctx.WithValues(
-			r.Context(),
-			cctx.SessionID, sid,
-			cctx.SupportPersonnel, false,
-		))
-
-		c.rpc.ServeHTTP(w, r)
+		c.rpc.ServeHTTP(w, c.prepareRequest(r, sid))
 	})
+
+	// XXX: easter egg, or lazy dev job?
+	router.HandleFunc("/chat/iamsupport", func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     chatSupportCookieName,
+			Value:    "true",
+			Path:     "/chat",
+			Expires:  time.Now().Add(24 * time.Hour),
+			SameSite: http.SameSiteStrictMode,
+			HttpOnly: true,
+			// TODO: need allowed domains from the configuration
+			Domain: r.URL.Hostname(),
+			Secure: r.URL.Scheme == "https",
+		})
+
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w, "OK")
+	}).Methods(http.MethodGet)
 }
 
 func (c *ChatController) getOrCreateChatSessionCookie(r *http.Request) (sid string, newHeader http.Header, err error) {
@@ -172,6 +193,21 @@ func (c *ChatController) getOrCreateChatSessionCookie(r *http.Request) (sid stri
 	newHeader = make(http.Header)
 	newHeader.Add("Set-Cookie", cookie.String())
 	return
+}
+
+func (c *ChatController) prepareRequest(r *http.Request, sid string) *http.Request {
+	supportPersonnel := false
+
+	var supportCookie *http.Cookie
+	if supportCookie, _ = r.Cookie(chatSupportCookieName); supportCookie != nil {
+		supportPersonnel = true
+	}
+
+	return r.WithContext(cctx.WithValues(
+		r.Context(),
+		cctx.SessionID, sid,
+		cctx.SupportPersonnel, supportPersonnel,
+	))
 }
 
 func loadPasetoPrivateKey(sessionSecret string) (key paseto.V4AsymmetricSecretKey, err error) {
