@@ -121,8 +121,8 @@ func (c *ChatController) Register(router *mux.Router) {
 			SameSite: http.SameSiteStrictMode,
 			HttpOnly: true,
 			// TODO: need allowed domains from the configuration
-			Domain: r.URL.Hostname(),
-			Secure: r.URL.Scheme == "https",
+			//Domain: r.URL.Hostname(),
+			//Secure: r.URL.Scheme == "https",
 		})
 
 		w.WriteHeader(http.StatusOK)
@@ -182,8 +182,8 @@ func (c *ChatController) getOrCreateChatSessionCookie(r *http.Request) (sid stri
 		SameSite: http.SameSiteStrictMode,
 		HttpOnly: true,
 		// TODO: need allowed domains from the configuration
-		Domain: r.URL.Hostname(),
-		Secure: r.URL.Scheme == "https",
+		//Domain: r.URL.Hostname(),
+		//Secure: r.URL.Scheme == "https",
 	}
 
 	if err = cookie.Valid(); err != nil {
