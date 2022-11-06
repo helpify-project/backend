@@ -3,7 +3,6 @@ package jsonrpc
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/uptrace/bun"
@@ -31,23 +30,27 @@ func (s *ChatService) Send(ctx context.Context, input InputMessage) (msg Message
 
 	// Find the room
 	var room models.Room
-	var inRoom bool
+	//var inRoom bool
 	err = s.DB.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) (err error) {
 		if room, err = s.findRoom(ctx, input.RoomID); err != nil {
 			return
 		}
 
-		if inRoom, err = s.inRoom(ctx, sid, input.RoomID); err != nil {
-			return
-		}
+		/*
+			if inRoom, err = s.inRoom(ctx, sid, input.RoomID); err != nil {
+				return
+			}
+		*/
 
 		return
 	})
 
-	if !inRoom {
-		err = fmt.Errorf("not member of given room")
-		return
-	}
+	/*
+		if !inRoom {
+			err = fmt.Errorf("not member of given room")
+			return
+		}
+	*/
 
 	dbMsg := models.Message{
 		RoomID:    room.ID,
@@ -92,8 +95,8 @@ func (s *ChatService) History(ctx context.Context, roomID string) (messages []Me
 	})
 
 	if !inRoom {
-		err = fmt.Errorf("not member of given room")
-		return
+		//err = fmt.Errorf("not member of given room")
+		//return
 	}
 
 	var dbMessages []models.Message

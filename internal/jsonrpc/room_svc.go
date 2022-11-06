@@ -34,18 +34,20 @@ func (s *RoomService) Create(ctx context.Context) (roomID string, err error) {
 
 	err = s.DB.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) (err error) {
 		// Check if user has any active rooms before creating new one
-		var existingRooms int
-		existingRooms, err = tx.NewSelect().
-			Model((*models.Room)(nil)).
-			Where("owner = ?", sid).
-			Where("archived_at IS NULL").
-			Count(ctx)
-		if err != nil {
-			return
-		} else if existingRooms > 0 {
-			err = fmt.Errorf("too many open rooms")
-			return
-		}
+		/*
+			var existingRooms int
+			existingRooms, err = tx.NewSelect().
+				Model((*models.Room)(nil)).
+				Where("owner = ?", sid).
+				Where("archived_at IS NULL").
+				Count(ctx)
+			if err != nil {
+				return
+			} else if existingRooms > 0 {
+				err = fmt.Errorf("too many open rooms")
+				return
+			}
+		*/
 
 		// Create new room
 		_, err = tx.NewInsert().
@@ -104,36 +106,38 @@ func (s *RoomService) Join(ctx context.Context, roomID string) (ok bool, err err
 }
 
 func (s *RoomService) Archive(ctx context.Context, roomID string) (ok bool, err error) {
-	sid := ctx.Value(cctx.SessionID).(string)
-	supportPersonnel := ctx.Value(cctx.SupportPersonnel).(bool)
+	//sid := ctx.Value(cctx.SessionID).(string)
+	//supportPersonnel := ctx.Value(cctx.SupportPersonnel).(bool)
 
 	// Find the room
 	var room models.Room
-	var inRoom bool
+	//var inRoom bool
 
 	err = s.DB.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) (err error) {
 		if room, err = s.findRoom(ctx, roomID); err != nil {
 			return
 		}
 
-		if inRoom, err = s.inRoom(ctx, sid, roomID); err != nil {
-			return
-		}
+		/*
+			if inRoom, err = s.inRoom(ctx, sid, roomID); err != nil {
+				return
+			}
 
-		if !inRoom {
-			err = fmt.Errorf("not member of given room")
-			return
-		}
+			if !inRoom {
+				err = fmt.Errorf("not member of given room")
+				return
+			}
 
-		if !supportPersonnel && room.Owner != sid {
-			err = fmt.Errorf("can only interact with your own rooms")
-			return
-		}
+			if !supportPersonnel && room.Owner != sid {
+				err = fmt.Errorf("can only interact with your own rooms")
+				return
+			}
 
-		if room.ArchivedAt != nil {
-			err = fmt.Errorf("already archived")
-			return
-		}
+			if room.ArchivedAt != nil {
+				err = fmt.Errorf("already archived")
+				return
+			}
+		*/
 
 		_, err = tx.NewUpdate().
 			Model(&room).
