@@ -8,7 +8,6 @@ import (
 
 	"github.com/helpify-project/backend/internal/cctx"
 	"github.com/helpify-project/backend/internal/database/models"
-	"github.com/helpify-project/backend/internal/rpc"
 )
 
 func NewChatService(db *bun.DB) *ChatService {
@@ -85,6 +84,7 @@ func (s *ChatService) History(ctx context.Context, roomID string) (messages []Me
 	return
 }
 
+/*
 func (s *ChatService) NewChatMessages(ctx context.Context) (sub *rpc.Subscription, err error) {
 	notifier, supported := rpc.NotifierFromContext(ctx)
 	if !supported {
@@ -96,3 +96,4 @@ func (s *ChatService) NewChatMessages(ctx context.Context) (sub *rpc.Subscriptio
 
 	return
 }
+*/

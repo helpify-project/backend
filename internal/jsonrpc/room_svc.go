@@ -10,7 +10,6 @@ import (
 
 	"github.com/helpify-project/backend/internal/cctx"
 	"github.com/helpify-project/backend/internal/database/models"
-	"github.com/helpify-project/backend/internal/rpc"
 )
 
 func NewRoomService(db *bun.DB) *RoomService {
@@ -180,6 +179,7 @@ func (s *RoomService) List(ctx context.Context) (rooms []Room, err error) {
 	return
 }
 
+/*
 func (s *RoomService) NewRooms(ctx context.Context) (sub *rpc.Subscription, err error) {
 	supportPersonnel := ctx.Value(cctx.SupportPersonnel).(bool)
 
@@ -198,3 +198,4 @@ func (s *RoomService) NewRooms(ctx context.Context) (sub *rpc.Subscription, err 
 
 	return
 }
+*/
