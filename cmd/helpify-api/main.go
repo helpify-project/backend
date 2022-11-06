@@ -151,7 +151,8 @@ func entrypoint(cctx *cli.Context) (err error) {
 			http.MethodPut,
 		}),
 		gorillaHandlers.AllowedOrigins([]string{
-			"*",
+			"http://localhost",
+			"https://helpify-frontend.onrender.com",
 		}),
 		gorillaHandlers.MaxAge(86400),
 	)
