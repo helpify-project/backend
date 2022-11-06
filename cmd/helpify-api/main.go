@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"time"
 
+	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
@@ -132,12 +133,32 @@ func entrypoint(cctx *cli.Context) (err error) {
 	}
 
 	router := mux.NewRouter()
-	srv := &http.Server{
-		Addr: listenAddr,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Add("Access-Control-Allow-Origin", "*")
-			router.ServeHTTP(w, r)
+	handler := gorillaHandlers.CORS(
+		gorillaHandlers.AllowCredentials(),
+		gorillaHandlers.AllowedHeaders([]string{
+			"Authorization",
+			"Content-Type",
+			"Origin",
+			"X-Requested-With",
 		}),
+		gorillaHandlers.AllowedMethods([]string{
+			http.MethodDelete,
+			http.MethodGet,
+			http.MethodHead,
+			http.MethodOptions,
+			http.MethodPatch,
+			http.MethodPost,
+			http.MethodPut,
+		}),
+		gorillaHandlers.AllowedOrigins([]string{
+			"*",
+		}),
+		gorillaHandlers.MaxAge(86400),
+	)
+
+	srv := &http.Server{
+		Addr:         listenAddr,
+		Handler:      handler(router),
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 	}
