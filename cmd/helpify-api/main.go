@@ -125,10 +125,19 @@ func entrypoint(cctx *cli.Context) (err error) {
 		return
 	}
 
+	// XXX: Render pls
+	listenAddr := cctx.String("http-listen-address")
+	if port := os.Getenv("PORT"); port != "" {
+		listenAddr = ":" + port
+	}
+
 	router := mux.NewRouter()
 	srv := &http.Server{
-		Addr:         cctx.String("http-listen-address"),
-		Handler:      router,
+		Addr: listenAddr,
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Access-Control-Allow-Origin", "*")
+			router.ServeHTTP(w, r)
+		}),
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 	}
