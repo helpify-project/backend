@@ -25,3 +25,18 @@ func (s *baseService) findRoom(ctx context.Context, roomID string) (room models.
 		Scan(ctx)
 	return
 }
+
+func (s *baseService) inRoom(ctx context.Context, sid string, roomID string) (ok bool, err error) {
+	var intRoomID int
+	if intRoomID, err = strconv.Atoi(roomID); err != nil {
+		return
+	}
+
+	ok, err = s.DB.NewSelect().
+		Model((*models.JoinedRoom)(nil)).
+		Where("room_id = ?", intRoomID).
+		Where("user_id = ?", sid).
+		Exists(ctx)
+
+	return
+}

@@ -104,6 +104,51 @@ func (s *RoomService) Join(ctx context.Context, roomID string) (ok bool, err err
 	return
 }
 
+func (s *RoomService) Archive(ctx context.Context, roomID string) (ok bool, err error) {
+	sid := ctx.Value(cctx.SessionID).(string)
+	supportPersonnel := ctx.Value(cctx.SupportPersonnel).(bool)
+
+	// Find the room
+	var room models.Room
+	var inRoom bool
+
+	err = s.DB.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) (err error) {
+		if room, err = s.findRoom(ctx, roomID); err != nil {
+			return
+		}
+
+		if inRoom, err = s.inRoom(ctx, sid, roomID); err != nil {
+			return
+		}
+
+		if !inRoom {
+			err = fmt.Errorf("not member of given room")
+			return
+		}
+
+		if !supportPersonnel && room.Owner != sid {
+			err = fmt.Errorf("can only interact with your own rooms")
+			return
+		}
+
+		if room.ArchivedAt != nil {
+			err = fmt.Errorf("already archived")
+			return
+		}
+
+		_, err = tx.NewUpdate().
+			Model(&room).
+			Where("id = ?", room.ID).
+			Set("archived_at = ?", time.Now()).
+			Exec(ctx)
+
+		return
+	})
+
+	ok = err == nil
+	return
+}
+
 func (s *RoomService) List(ctx context.Context) (rooms []Room, err error) {
 	rooms = make([]Room, 0)
 	supportPersonnel := ctx.Value(cctx.SupportPersonnel).(bool)
