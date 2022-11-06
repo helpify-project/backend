@@ -26,6 +26,7 @@
           buildInputs = [
             pkgs.go_1_19
             pkgs.gopls
+            pkgs.postgresql
           ];
         };
       });

@@ -52,6 +52,10 @@ func main() {
 					"HELPIFY_API_POSTGRES_URI",
 				},
 			},
+			&cli.StringFlag{
+				Name:  "session-secret",
+				Value: `d+rOlDT4uH5foUDCDSPFpxKnY0tcrR0U8UWfZ6ng+sYAZinksr9G/bRxLV107ze9K2zFgoJj/zz8d542fRRgFQ==`,
+			},
 		},
 		Before: func(cctx *cli.Context) (err error) {
 			err = setupLogging(cctx.Bool("debug"))
@@ -136,6 +140,10 @@ func entrypoint(cctx *cli.Context) (err error) {
 	if cctx.Bool("debug") {
 		(&controllers.GoDebugController{}).Register(router)
 	}
+	(&controllers.ChatController{
+		DB:            db,
+		SessionSecret: cctx.String("session-secret"),
+	}).Register(router)
 	(&controllers.HealthController{}).Register(router)
 
 	serverDone := make(chan interface{})

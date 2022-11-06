@@ -3,11 +3,13 @@ module github.com/helpify-project/backend
 go 1.19
 
 require (
+	aidanwoods.dev/go-paseto v1.1.3
 	github.com/davecgh/go-spew v1.1.1
 	github.com/deckarep/golang-set v1.8.0
 	github.com/ethereum/go-ethereum v1.10.26
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
-	github.com/gorilla/websocket v1.4.2
+	github.com/gorilla/websocket v1.5.0
 	github.com/jackc/pgx/v5 v5.0.4
 	github.com/pressly/goose/v3 v3.7.0
 	github.com/uptrace/bun v1.1.8
@@ -28,7 +30,6 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.13.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
