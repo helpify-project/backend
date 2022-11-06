@@ -179,8 +179,9 @@ func (c *ChatController) getOrCreateChatSessionCookie(r *http.Request) (sid stri
 		Path:     "/chat",
 		Expires:  expiresAt.Add(24 * time.Hour), // XXX: Add 24 hours to work around time zones, because cookies suck. Best effort
 		MaxAge:   2 * 60 * 60,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteNoneMode,
 		HttpOnly: true,
+		Secure:   true,
 		// TODO: need allowed domains from the configuration
 		//Domain: r.URL.Hostname(),
 		//Secure: r.URL.Scheme == "https",
