@@ -155,12 +155,19 @@ func (s *RoomService) Archive(ctx context.Context, roomID string) (ok bool, err 
 func (s *RoomService) List(ctx context.Context) (rooms []Room, err error) {
 	rooms = make([]Room, 0)
 	sid := ctx.Value(cctx.SessionID).(string)
+	supportPersonnel := ctx.Value(cctx.SupportPersonnel).(bool)
 
 	var dbRooms []models.Room
-	err = s.DB.NewSelect().
+
+	query := s.DB.NewSelect().
 		Model(&dbRooms).
-		Column("id", "owner", "created_at", "archived_at").
-		Where("owner = ?", sid).
+		Column("id", "owner", "created_at", "archived_at")
+
+	if !supportPersonnel {
+		query = query.Where("owner = ?", sid)
+	}
+
+	err = query.
 		Where("archived_at IS NULL").
 		Order("created_at DESC").
 		Scan(ctx)

@@ -118,8 +118,9 @@ func (c *ChatController) Register(router *mux.Router) {
 			Value:    "true",
 			Path:     "/chat",
 			Expires:  time.Now().Add(24 * time.Hour),
-			SameSite: http.SameSiteStrictMode,
+			SameSite: http.SameSiteNoneMode,
 			HttpOnly: true,
+			Secure:   true,
 			// TODO: need allowed domains from the configuration
 			//Domain: r.URL.Hostname(),
 			//Secure: r.URL.Scheme == "https",
